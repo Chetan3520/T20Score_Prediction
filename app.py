@@ -139,34 +139,48 @@ if st.sidebar.button("Get Max Run Rate"):
 
 #---------------------------------------------------------------------------------------
 
+
 # Group the data by batting_teams and wickets_left, calculate the maximum values, and sort the results
 grouped_df = df.groupby(['batting_team', 'wickets_left']).agg({'runs_x': 'max', 'crr': 'max'}).reset_index()
 grouped_df_sorted = grouped_df.sort_values(['runs_x', 'crr'], ascending=False)
 
-# Sidebar button for execution
-if st.sidebar.button("Run Analysis"):
-    # Sidebar selectbox for batting_team selection
-    selected_teams = st.sidebar.selectbox('Select Batting Team', grouped_df_sorted['batting_team'].unique())
+# Main Streamlit app
+def main():
 
-    # Filter the grouped and sorted DataFrame based on selected teams
-    filtered_df = grouped_df_sorted[grouped_df_sorted['batting_team'] == selected_teams]
+    st.write("Select a batting team and press 'Run Analysis' to perform analysis.")
 
-    # Display the filtered DataFrame
-    st.dataframe(filtered_df)
+    # Selectbox for batting team
+    batting_teams = grouped_df_sorted['batting_team'].unique()
+    selected_batting_team = st.selectbox("Select Batting Team", batting_teams)
 
-    # Plotting the bar chart with eye-catching and colorful styles
-    fig3 = go.Figure()
-    fig3.add_trace(go.Bar(x=filtered_df['wickets_left'], y=filtered_df['runs_x'], name='Runs_x',
-                          marker_color='#FFA07A'))
-    fig3.add_trace(go.Bar(x=filtered_df['wickets_left'], y=filtered_df['crr'], name='CRR',
-                          marker_color='#9370DB'))
-    fig3.update_layout(barmode='group', plot_bgcolor='#F0F2F6', paper_bgcolor='#F0F2F6')
-    fig3.update_xaxes(showline=True, linewidth=1, linecolor='#333333')
-    fig3.update_yaxes(showline=True, linewidth=1, linecolor='#333333')
-    fig3.update_layout(title='Max Runs and CRR by Wickets Left', xaxis_title='Wickets Left',
-                       yaxis_title='Values', font=dict(family='Arial', size=12, color='#333333'))
-    fig3.update_traces(hovertemplate='<b>%{x}</b><br>%{y}', textposition='auto', textfont=dict(color='white'))
+    # Run Analysis button
+    if st.sidebar.button("Run Analysis"):
+        if selected_batting_team:
+            # Filter the grouped and sorted DataFrame based on selected batting team
+            filtered_df = grouped_df_sorted[grouped_df_sorted['batting_team'] == selected_batting_team]
 
-    st.plotly_chart(fig3)
+            # Display the filtered DataFrame
+            st.dataframe(filtered_df)
+
+            # Plotting the bar chart with eye-catching and colorful styles
+            fig3 = go.Figure()
+            fig3.add_trace(go.Bar(x=filtered_df['wickets_left'], y=filtered_df['runs_x'], name='Runs_x',
+                                  marker_color='#FFA07A'))
+            fig3.add_trace(go.Bar(x=filtered_df['wickets_left'], y=filtered_df['crr'], name='CRR',
+                                  marker_color='#9370DB'))
+            fig3.update_layout(barmode='group', plot_bgcolor='#F0F2F6', paper_bgcolor='#F0F2F6')
+            fig3.update_xaxes(showline=True, linewidth=1, linecolor='#333333')
+            fig3.update_yaxes(showline=True, linewidth=1, linecolor='#333333')
+            fig3.update_layout(title='Max Runs and CRR by Wickets Left', xaxis_title='Wickets Left',
+                               yaxis_title='Values', font=dict(family='Arial', size=12, color='#333333'))
+            fig3.update_traces(hovertemplate='<b>%{x}</b><br>%{y}', textposition='auto', textfont=dict(color='white'))
+
+            st.plotly_chart(fig3)
+        else:
+            st.warning("Please select a batting team before running the analysis.")
+
+# Run the app
+if __name__ == "__main__":
+    main()
 
 #---------------------------------------------------------------------------------------
