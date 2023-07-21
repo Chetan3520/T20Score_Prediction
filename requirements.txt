@@ -1,4 +1,4 @@
 xgboost==1.4.2
 streamlit
 plotly==5.15.0
-sklearn
+scikit-learn
